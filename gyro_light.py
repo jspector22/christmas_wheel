@@ -24,9 +24,10 @@ pixels = neopixel.NeoPixel(board.GP26, num_pixels)
 pixel_index = 0
 
 while True:
-    pixels[pixel_index] = (10, 0, 0)
+    pixels[pixel_index] = (10, 10, 10)
     time.sleep(sleep_interval_seconds)
-    pixel_index += 1 #only lights up pixel 0
+    pixel_index += round(SENSOR.gyro[2]) #added sensor to move pixel left and right
+    pixels.fill((0,0,0)) #clears previous pixel
     if pixel_index == num_pixels:
         print("Reset")
         pixels.fill((0,0,0))
