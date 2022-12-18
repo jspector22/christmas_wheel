@@ -27,7 +27,7 @@ while True:
     pixels[pixel_index] = (10, 0, 0)
     time.sleep(sleep_interval_seconds)
     pixel_index += 1 #only lights up pixel 0
-    if pixel_index > num_pixels:
+    if pixel_index == num_pixels:
         print("Reset")
         pixels.fill((0,0,0))
         pixel_index = 0
