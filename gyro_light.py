@@ -6,22 +6,22 @@ import busio
 from rainbowio import colorwheel
 import neopixel
 
+#Gyroscope config
 SDA = board.GP20
 SCL = board.GP21
-# Hardware I2C setup:
-I2C = busio.I2C(SCL, SDA)  # uses board.SCL and board.SDA
-# Initializes L3GD20 object using default range, 250dps
+I2C = busio.I2C(SCL, SDA)
 SENSOR = my_l3gd20.L3GD20_I2C(I2C, address=0x6B)
 
-# SPEED = 1  # Increase to slow down the rainbow. Decrease to speed it up.
 
-num_pixels = 95  # Update this to match the number of LEDs.
-sleep_interval_seconds = 0.0535 # time in seconds to sleep between each pixel light up.
-pixel_pin = board.GP26  # This is the default pin on the 5x5 NeoPixel Grid BFF.
+#Neopixel setup
+num_pixels = 95
+sleep_interval_seconds = 0.054 # time in seconds to sleep between each pixel light up.
+pixel_pin = board.GP26 
 ORDER = neopixel.GRB
-
 pixels = neopixel.NeoPixel(board.GP26, num_pixels)
+pixel_index = 0
 
+#Gyroscope bound
 offset = 0.075
 
 def bound(gyro_value):
@@ -31,27 +31,45 @@ def bound(gyro_value):
         return 5
     return gyro_value
 
+#Gyroscope Calibration of bias
 def calibrate(gyro_value):
     return gyro_value + offset
-red = range(0,100)
-green = range(0,100)
-blue = range(0,100)
-pixel_index = 0
 
-while True:
-    if abs(pixel_index) < num_pixels:
-        
-        
-        gyro_value = SENSOR.gyro[2]
-        gyro_value = calibrate(gyro_value)
-        gyro_value = bound(gyro_value)      
-        pixels[pixel_index] = (random.randrange(len(red)), random.randrange(len(green)), random.randrange(len(blue)))    
-        pixel_index += round(SENSOR.gyro[2])
-        print(pixel_index)
-        time.sleep(sleep_interval_seconds)
-        pixels.fill((0,0,0))
+#COLOR config
+RED = (255, 0, 0)
+ORANGE = (230, 30, 0)
+YELLOW = (255, 150, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+INDIGO = (75, 0, 130)
+VIOLET = (138, 43, 226)
+COLORS = (RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET)
+
+
+while True:     
+    gyro_value = SENSOR.gyro[2]
+    gyro_value = calibrate(gyro_value)
+    gyro_value = bound(gyro_value)    
+    pixel_index += round(SENSOR.gyro[2])               
+    print(pixel_index)
+    time.sleep(sleep_interval_seconds)
+    pixels.fill((0,0,0))
+    
+#full rotation
     if abs(pixel_index) >= num_pixels:
         pixel_index = 0
-        pixels[pixel_index] = (20, 0, 0)    
-        print("Reset")        
+        pixels[pixel_index] = (10, 10, 10)    
+        print("Reset")
+        
+#color wheel division
+    if abs(pixel_index) <= 18:
+        pixels[pixel_index] = (RED)
+    if abs(pixel_index) in range(19,38):
+        pixels[pixel_index] = (ORANGE)
+    if abs(pixel_index) in range(38,56):
+        pixels[pixel_index] = (YELLOW)
+    if abs(pixel_index) in range(56,75):
+        pixels[pixel_index] = (GREEN)
+    if abs(pixel_index) in range(75,94):
+        pixels[pixel_index] = (BLUE) 
     #print("Angular Velocity (rad/s): {}".format(SENSOR.gyro[2]))
